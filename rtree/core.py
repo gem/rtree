@@ -111,16 +111,16 @@ if os.name == 'nt':
         raise OSError("could not find or load spatialindex_c.dll")
 
 elif os.name == 'posix':
-    platform = os.uname()[0]
-    if 'SPATIALINDEX_C_LIBRARY' in os.environ:
-        lib_name = os.environ['SPATIALINDEX_C_LIBRARY']
-    else:
-        lib_name = find_library('spatialindex_c')
+#    platform = os.uname()[0]
+#    if 'SPATIALINDEX_C_LIBRARY' in os.environ:
+#        lib_name = os.environ['SPATIALINDEX_C_LIBRARY']
+#    else:
+#        lib_name = find_library('spatialindex_c')
+#
+#    if lib_name is None:
+#        raise OSError("Could not find libspatialindex_c library file")
 
-    if lib_name is None:
-        raise OSError("Could not find libspatialindex_c library file")
-
-    rt = ctypes.CDLL(lib_name)
+    rt = ctypes.CDLL('./_wrapper_lib.so')
 else:
     raise RTreeError('Unsupported OS "%s"' % os.name)
 

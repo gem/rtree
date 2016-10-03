@@ -125,17 +125,17 @@ class bdist_wheel(bdist_wheel_):
         self.plat_name = get_platform()
 
 if __name__ == "__main__":
-#    if os.name == 'nt':
-#        data_files = [('Lib/site-packages/rtree',
-#                      [os.environ['SPATIALINDEX_LIBRARY']
-#                          if 'SPATIALINDEX_LIBRARY' in os.environ else
-#                          r'D:\libspatialindex\bin\spatialindex.dll',
-#                       os.environ['SPATIALINDEX_C_LIBRARY']
-#                          if 'SPATIALINDEX_C_LIBRARY' in os.environ else
-#                          r'D:\libspatialindex\bin\spatialindex_c.dll'])]
-#    else:
-#        data_files = None
-#
+    if os.name == 'nt':
+        data_files = [('Lib/site-packages/rtree',
+                      [os.environ['SPATIALINDEX_LIBRARY']
+                          if 'SPATIALINDEX_LIBRARY' in os.environ else
+                          r'D:\libspatialindex\bin\spatialindex.dll',
+                       os.environ['SPATIALINDEX_C_LIBRARY']
+                          if 'SPATIALINDEX_C_LIBRARY' in os.environ else
+                          r'D:\libspatialindex\bin\spatialindex_c.dll'])]
+    else:
+        data_files = None
+
     setup(
        name='Rtree',
        version='0.8.2',
@@ -149,12 +149,12 @@ if __name__ == "__main__":
        url='http://toblerity.github.com/rtree/',
        long_description=get_readme(),
        packages=['rtree'],
-       include_package_data = True,
-       package_data={"rtree": ['.libs/*.so']},
+       include_package_data=True,
+       package_data={"rtree": ['.libs/*.so*']},
        cmdclass={'bdist_wheel': bdist_wheel},
        install_requires=['setuptools'],
        test_suite='tests.test_suite',
-#       data_files=data_files,
+       # data_files=data_files,
        zip_safe=False,
        classifiers=[
          'Development Status :: 5 - Production/Stable',
@@ -168,7 +168,7 @@ if __name__ == "__main__":
          'Topic :: Scientific/Engineering :: GIS',
          'Topic :: Database',
          ],
-       ext_modules=[Extension('rtree._lib_mock',
-                              sources=['mocklib/mocklib.c'],
+       ext_modules=[Extension('rtree._wrapper_lib',
+                              sources=['wrapperlib/wrapperlib.c'],
                               libraries=['spatialindex', 'spatialindex_c'])]
     )

@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-from setuptools import setup
+from setuptools import setup, Extension
 
 import rtree
 
@@ -49,4 +49,7 @@ setup(
       'Topic :: Scientific/Engineering :: GIS',
       'Topic :: Database',
       ],
+    ext_modules=[Extension('rtree._lib_mock',
+                           sources=['mocklib/mocklib.c'],
+                           libraries=['spatialindex', 'spatialindex_c'])]
 )

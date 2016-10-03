@@ -120,6 +120,7 @@ class bdist_wheel(bdist_wheel_):
     def finalize_options(self):
         bdist_wheel_.finalize_options(self)
         self.universal = True
+        self.root_is_pure = False
         self.plat_name_supplied = True
         self.plat_name = get_platform()
 

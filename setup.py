@@ -83,6 +83,8 @@ def build_spatialindex(libname):
         retcode = subprocess.Popen([
             './autogen.sh',
             ], cwd=root).wait()
+        # fix a bug on CentOS 5 (used to make manylinux1 wheels)
+        os.makedirs(root + '/m4')
         retcode = subprocess.Popen([
             './configure',
             ], cwd=root).wait()
@@ -91,17 +93,15 @@ def build_spatialindex(libname):
     else:
         print("spatialindex already configured in directory {}".format(root))
 
-    if find_file(libname) is None:
-        print("making spatialindex")
-        retcode = subprocess.Popen([
-            'make',
-            '-j',
-            str(cpu_count())
-            ], cwd=root).wait()
-        if 0 != retcode:
-            raise RuntimeError("make failed")
-    else:
-        print("spatialindex library '{}' already made".format(libname))
+    print("making spatialindex")
+    retcode = subprocess.Popen([
+        'make',
+        '-j',
+        str(cpu_count())
+        ], cwd=root).wait()
+    if 0 != retcode:
+        raise RuntimeError("make failed")
+
     src = os.path.join(root, '.libs')
     dst = 'rtree/.libs'
     print("copying {} to {}".format(src, dst))

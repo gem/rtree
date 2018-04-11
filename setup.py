@@ -84,7 +84,9 @@ def build_spatialindex(libname):
             './autogen.sh',
             ], cwd=root).wait()
         # fix a bug on CentOS 5 (used to make manylinux1 wheels)
-        os.makedirs(root + '/m4')
+        mfour = os.path.join(root, 'm4')
+        if not os.path.isdir(mfour):
+            os.makedirs(mfour)
         retcode = subprocess.Popen([
             './configure',
             ], cwd=root).wait()

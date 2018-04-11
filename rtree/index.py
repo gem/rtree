@@ -16,6 +16,13 @@ if sys.version_info[0] == 2:
 elif sys.version_info[0] == 3:
     string_types = str
 
+
+def string_output(s):
+    if sys.version_info[0] == 2:
+        return s
+    elif sys.version_info[0] == 3:
+        return s.decode('UTF-8')
+
 RT_Memory = 0
 RT_Disk = 1
 RT_Custom = 2
@@ -147,8 +154,10 @@ class Index(object):
 
         Insert an item into the index::
 
-            >>> idx.insert(4321, (34.3776829412, 26.7375853734, 49.3776829412,
-            41.7375853734), obj=42)
+            >>> idx.insert(4321,
+            ...            (34.3776829412, 26.7375853734, 49.3776829412,
+            ...             41.7375853734),
+            ...            obj=42)
 
         Query::
 
@@ -157,23 +166,33 @@ class Index(object):
             ...     if i.id == 4321:
             ...         i.object
             ...         i.bbox
+            ... # doctest: +ELLIPSIS
             42
-            [34.3776829412, 26.737585373400002, 49.3776829412,
-            41.737585373400002]
+            [34.37768294..., 26.73758537..., 49.37768294..., 41.73758537...]
 
 
         Using custom serializers::
 
-            >>> import simplejson
             >>> class JSONIndex(index.Index):
-            ...     dumps = staticmethod(simplejson.dumps)
-            ...     loads = staticmethod(simplejson.loads)
+            ...     def dumps(self, obj):
+            ...         # This import is nested so that the doctest doesn't
+            ...         # require simplejson.
+            ...         import simplejson
+            ...         return simplejson.dumps(obj).encode('ascii')
+            ...
+            ...     def loads(self, string):
+            ...         import simplejson
+            ...         return simplejson.loads(string.decode('ascii'))
 
+            >>> stored_obj = {"nums": [23, 45], "letters": "abcd"}
             >>> json_idx = JSONIndex()
-            >>> json_idx.insert(1, (0, 1, 0, 1), {"nums": [23, 45],
-            "letters": "abcd"})
-            >>> list(json_idx.nearest((0, 0), 1, objects="raw"))
-            [{'letters': 'abcd', 'nums': [23, 45]}]
+            >>> try:
+            ...     json_idx.insert(1, (0, 1, 0, 1), stored_obj)
+            ...     list(json_idx.nearest((0, 0), 1,
+            ...                           objects="raw")) == [stored_obj]
+            ... except ImportError:
+            ...     True
+            True
 
         """
         self.properties = kwargs.get('properties', Property())
@@ -204,7 +223,7 @@ class Index(object):
             self.properties.filename = basename
 
             # check we can read the file
-            f = basename + "." + self.properties.idx_extension.decode("utf-8")
+            f = basename + "." + self.properties.idx_extension
             p = os.path.abspath(f)
 
             # assume if the file exists, we're not going to overwrite it
@@ -225,7 +244,7 @@ class Index(object):
             d = os.path.dirname(p)
             if not os.access(d, os.W_OK):
                 message = "Unable to open file '%s' for index storage" % f
-                raise IOError(message)
+                raise OSError(message)
         elif storage:
             if (major_version < 2 and minor_version < 8):
                 raise core.RTreeError(
@@ -248,10 +267,10 @@ class Index(object):
         else:
             self.properties.storage = RT_Memory
 
-        try:
-            self.properties.pagesize = int(kwargs['pagesize'])
-        except KeyError:
-            pass
+
+        ps = kwargs.get('pagesize', None)
+        if ps:
+            self.properties.pagesize = int(ps)
 
         if stream:
             self.handle = self._create_idx_from_stream(stream)
@@ -355,8 +374,10 @@ class Index(object):
 
             >>> from rtree import index
             >>> idx = index.Index()
-            >>> idx.insert(4321, (34.3776829412, 26.7375853734, 49.3776829412,
-            41.7375853734), obj=42)
+            >>> idx.insert(4321,
+            ...            (34.3776829412, 26.7375853734, 49.3776829412,
+            ...             41.7375853734),
+            ...            obj=42)
 
         """
         p_mins, p_maxs = self.get_coordinate_pointers(coordinates)
@@ -384,10 +405,12 @@ class Index(object):
 
             >>> from rtree import index
             >>> idx = index.Index()
-            >>> idx.insert(4321, (34.3776829412, 26.7375853734, 49.3776829412,
-            41.7375853734), obj=42)
+            >>> idx.insert(4321,
+            ...            (34.3776829412, 26.7375853734, 49.3776829412,
+            ...             41.7375853734),
+            ...            obj=42)
 
-            >>> idx.count((0, 0, 60, 60))
+            >>> print(idx.count((0, 0, 60, 60)))
             1
 
         """
@@ -425,13 +448,16 @@ class Index(object):
 
             >>> from rtree import index
             >>> idx = index.Index()
-            >>> idx.insert(4321, (34.3776829412, 26.7375853734, 49.3776829412,
-            41.7375853734), obj=42)
+            >>> idx.insert(4321,
+            ...            (34.3776829412, 26.7375853734, 49.3776829412,
+            ...             41.7375853734),
+            ...            obj=42)
 
             >>> hits = list(idx.intersection((0, 0, 60, 60), objects=True))
             >>> [(item.object, item.bbox) for item in hits if item.id == 4321]
-            [(42, [34.3776829412, 26.737585373400002, 49.3776829412,
-            41.737585373400002])]
+            ... # doctest: +NORMALIZE_WHITESPACE +ELLIPSIS
+            [(42, [34.37768294..., 26.73758537..., 49.37768294...,
+                   41.73758537...])]
 
         If the :class:`rtree.index.Item` wrapper is not used, it is faster to
         request the 'raw' objects::
@@ -613,8 +639,9 @@ class Index(object):
 
             >>> from rtree import index
             >>> idx = index.Index()
-            >>> idx.delete(4321, (34.3776829412, 26.7375853734, 49.3776829412,
-            41.7375853734))
+            >>> idx.delete(4321,
+            ...            (34.3776829412, 26.7375853734, 49.3776829412,
+            ...             41.7375853734))
 
         """
         p_mins, p_maxs = self.get_coordinate_pointers(coordinates)
@@ -694,7 +721,6 @@ class Index(object):
                 # we're done
                 return -1
 
-            # set the id
             if self.interleaved:
                 coordinates = Index.deinterleave(coordinates)
 
@@ -865,7 +891,14 @@ class Handle(object):
         return self._ptr
 
     def __del__(self):
-        self.destroy()
+        try:
+            self.destroy()
+        except NameError:
+            # The core.py model doesn't have
+            # core.rt available anymore and it was tore
+            # down. We don't want to try to do anything
+            # in that instance
+            return
 
 
 class IndexHandle(Handle):
@@ -1150,7 +1183,8 @@ class Property(object):
     """Reinsert factor"""
 
     def get_filename(self):
-        return core.rt.IndexProperty_GetFileName(self.handle)
+        s = core.rt.IndexProperty_GetFileName(self.handle)
+        return string_output(s)
 
     def set_filename(self, value):
         if isinstance(value, string_types):
@@ -1161,7 +1195,8 @@ class Property(object):
     """Index filename for disk storage"""
 
     def get_dat_extension(self):
-        return core.rt.IndexProperty_GetFileNameExtensionDat(self.handle)
+        s = core.rt.IndexProperty_GetFileNameExtensionDat(self.handle)
+        return string_output(s)
 
     def set_dat_extension(self, value):
         if isinstance(value, string_types):
@@ -1173,7 +1208,8 @@ class Property(object):
     """Extension for .dat file"""
 
     def get_idx_extension(self):
-        return core.rt.IndexProperty_GetFileNameExtensionIdx(self.handle)
+        s = core.rt.IndexProperty_GetFileNameExtensionIdx(self.handle)
+        return string_output(s)
 
     def set_idx_extension(self, value):
         if isinstance(value, string_types):
@@ -1438,8 +1474,8 @@ class RtreeContainer(Rtree):
             This object sets both the creation and instantiation properties
             for the object and they are passed down into libspatialindex.
             A few properties are curried from instantiation parameters
-            for you like ``pagesize`` to ensure compatibility with previous 
-            versions of the library.  All other properties must be set on the 
+            for you like ``pagesize`` to ensure compatibility with previous
+            versions of the library.  All other properties must be set on the
             object.
 
         .. warning::
@@ -1458,28 +1494,28 @@ class RtreeContainer(Rtree):
 
             >>> idx = index.RtreeContainer(properties=p)
             >>> idx  # doctest: +ELLIPSIS
-            <rtree.index.Rtree object at 0x...>
+            <rtree.index.RtreeContainer object at 0x...>
 
         Insert an item into the index::
 
-            >>> idx.insert(object(), (34.3776829412, 26.7375853734, 
-            49.3776829412, 41.7375853734))
+            >>> idx.insert(object(),
+            ...            (34.3776829412, 26.7375853734, 49.3776829412,
+            ...             41.7375853734))
 
         Query::
 
-            >>> hits = idx.intersection((0, 0, 60, 60))
+            >>> hits = idx.intersection((0, 0, 60, 60), bbox=True)
             >>> for obj in hits:
-            ...     i.object
-            ...     i.bbox  # doctest: +ELLIPSIS
+            ...     obj.object
+            ...     obj.bbox  # doctest: +ELLIPSIS
             <object object at 0x...>
-            [34.3776829412, 26.737585373400002, 49.3776829412,
-            41.737585373400002]
+            [34.37768294..., 26.73758537..., 49.37768294..., 41.73758537...]
         """
         if args:
             if isinstance(args[0], rtree.index.string_types) \
                     or isinstance(args[0], bytes) \
                     or isinstance(args[0], rtree.index.ICustomStorage):
-                raise ValueError('%s supports only in-memory indexes' 
+                raise ValueError('%s supports only in-memory indexes'
                                  % self.__class__)
         self._objects = {}
         return super(RtreeContainer, self).__init__(*args, **kwargs)
@@ -1497,13 +1533,14 @@ class RtreeContainer(Rtree):
             each dimension defining the bounds of the query window.
 
         The following example inserts a simple object into the container.
-        The coordinate ordering in this instance is the default 
+        The coordinate ordering in this instance is the default
         (interleaved=True) ordering::
 
             >>> from rtree import index
-            >>> idx = index.RTreeContainer()
-            >>> idx.insert(object(), (34.3776829412, 26.7375853734, 
-            49.3776829412, 41.7375853734))
+            >>> idx = index.RtreeContainer()
+            >>> idx.insert(object(),
+            ...            (34.3776829412, 26.7375853734, 49.3776829412,
+            ...             41.7375853734))
 
         """
         try:
@@ -1526,7 +1563,7 @@ class RtreeContainer(Rtree):
             each dimension defining the bounds of the query window.
 
         :param bbox: True or False
-            If True, the intersection method will return the stored objects, 
+            If True, the intersection method will return the stored objects,
             as well as the bounds of the entry.
 
         The following example queries the container for any stored objects that
@@ -1534,13 +1571,14 @@ class RtreeContainer(Rtree):
 
             >>> from rtree import index
             >>> idx = index.RtreeContainer()
-            >>> idx.insert(object(), (34.3776829412, 26.7375853734, 
-            49.3776829412, 41.7375853734))
+            >>> idx.insert(object(),
+            ...            (34.3776829412, 26.7375853734, 49.3776829412,
+            ...             41.7375853734))
 
             >>> hits = list(idx.intersection((0, 0, 60, 60), bbox=True))
-            >>> [(item.object, item.bbox) 
-            ...  for item in hits]   # doctest: +ELLIPSIS
-            [(<object object at 0x...>, [34.3776829412, 26.7375853734, 
+            >>> [(item.object, item.bbox) for item in hits]
+            ... # doctest: +ELLIPSIS +NORMALIZE_WHITESPACE
+            [(<object object at 0x...>, [34.3776829412, 26.7375853734,
             49.3776829412, 41.7375853734])]
 
         If the :class:`rtree.index.Item` wrapper is not used, it is faster to
@@ -1551,11 +1589,11 @@ class RtreeContainer(Rtree):
 
         """
         if bbox == False:
-            for id in super(RtreeContainer, 
+            for id in super(RtreeContainer,
                             self).intersection(coordinates, bbox):
                 yield self._objects[id][1]
         elif bbox == True:
-            for value in super(RtreeContainer, 
+            for value in super(RtreeContainer,
                                self).intersection(coordinates, bbox):
                 value.object = self._objects[value.id][1]
                 value.id = None
@@ -1591,11 +1629,11 @@ class RtreeContainer(Rtree):
             >>> hits = idx.nearest((0, 0, 10, 10), 3, bbox=True)
         """
         if bbox == False:
-            for id in super(RtreeContainer, 
+            for id in super(RtreeContainer,
                             self).nearest(coordinates, num_results, bbox):
                 yield self._objects[id][1]
         elif bbox == True:
-            for value in super(RtreeContainer, 
+            for value in super(RtreeContainer,
                                self).nearest(coordinates, num_results, bbox):
                 value.object = self._objects[value.id][1]
                 value.id = None
@@ -1605,7 +1643,7 @@ class RtreeContainer(Rtree):
                 "valid values for the bbox argument are True and False")
 
     def delete(self, obj, coordinates):
-        """Deletes the item from the container within the specified 
+        """Deletes the item from the container within the specified
         coordinates.
 
         :param obj: object
@@ -1625,8 +1663,12 @@ class RtreeContainer(Rtree):
 
             >>> from rtree import index
             >>> idx = index.RtreeContainer()
-            >>> idx.delete(object(), (34.3776829412, 26.7375853734, 
-            49.3776829412, 41.7375853734))
+            >>> idx.delete(object(),
+            ...            (34.3776829412, 26.7375853734, 49.3776829412,
+            ...             41.7375853734))
+            Traceback (most recent call last):
+             ...
+            IndexError: object is not in the index
 
         """
         try:
@@ -1640,7 +1682,7 @@ class RtreeContainer(Rtree):
         return super(RtreeContainer, self).delete(id, coordinates)
 
     def leaves(self):
-        return [(self._objects[id][1], [self._objects[child_id][1] 
+        return [(self._objects[id][1], [self._objects[child_id][1]
                                         for child_id in child_ids], bounds)
                 for id, child_ids, bounds
                 in super(RtreeContainer, self).leaves()]

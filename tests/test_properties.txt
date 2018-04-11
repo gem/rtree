@@ -18,33 +18,6 @@ Test creation from kwargs and eval() of its repr()
     >>> eval(repr(q))['index_id'] is None
     True
 
-Test pretty printed string
-
-    >>> print q
-    {'buffering_capacity': 10,
-     'custom_storage_callbacks': None,
-     'custom_storage_callbacks_size': 0L,
-     'dat_extension': 'dat',
-     'dimension': 2,
-     'filename': '',
-     'fill_factor': 0...,
-     'idx_extension': 'idx',
-     'index_capacity': 100,
-     'index_id': None,
-     'leaf_capacity': 100,
-     'near_minimum_overlap_factor': 32,
-     'overwrite': True,
-     'pagesize': 4096,
-     'point_pool_capacity': 500,
-     'region_pool_capacity': 1000,
-     'reinsert_factor': 0...,
-     'split_distribution_factor': 0...,
-     'storage': 1,
-     'tight_mbr': True,
-     'tpr_horizon': 20.0,
-     'type': 0,
-     'variant': 2,
-     'writethrough': False}
 
 Test property setting
 
@@ -52,12 +25,12 @@ Test property setting
     >>> p.type = 0
     >>> p.type
     0
-    
+
     >>> p.type = 2
     >>> p.type
     2
 
-    >>> p.type = 6
+    >>> p.type = 6  #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     ...
     RTreeError: LASError in "IndexProperty_SetIndexType": Inputted value is not a valid index type
@@ -65,152 +38,152 @@ Test property setting
     >>> p.dimension = 3
     >>> p.dimension
     3
-    
+
     >>> p.dimension = 2
     >>> p.dimension
     2
-    
-    >>> p.dimension = -2
+
+    >>> p.dimension = -2  #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     ...
     RTreeError: Negative or 0 dimensional indexes are not allowed
-    
+
     >>> p.variant = 0
     >>> p.variant
     0
-    
-    >>> p.variant = 6
+
+    >>> p.variant = 6  #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     ...
     RTreeError: LASError in "IndexProperty_SetIndexVariant": Inputted value is not a valid index variant
-    
+
     >>> p.storage = 0
-    >>> p.storage 
+    >>> p.storage
     0
-    
+
     >>> p.storage = 1
     >>> p.storage
     1
-    
-    >>> p.storage = 3
+
+    >>> p.storage = 3  #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     ...
     RTreeError: LASError in "IndexProperty_SetIndexStorage": Inputted value is not a valid index storage type
-    
+
     >>> p.index_capacity
     100
-    
+
     >>> p.index_capacity = 300
     >>> p.index_capacity
     300
-    
-    >>> p.index_capacity = -4321
+
+    >>> p.index_capacity = -4321  #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     ...
     RTreeError: index_capacity must be > 0
-    
+
     >>> p.pagesize
     4096
-    
+
     >>> p.pagesize = 8192
     >>> p.pagesize
     8192
-    
-    >>> p.pagesize = -4321
+
+    >>> p.pagesize = -4321  #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     ...
     RTreeError: Pagesize must be > 0
 
     >>> p.leaf_capacity
     100
-    
+
     >>> p.leaf_capacity = 1000
     >>> p.leaf_capacity
     1000
-    >>> p.leaf_capacity = -4321
+    >>> p.leaf_capacity = -4321  #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     ...
     RTreeError: leaf_capacity must be > 0
-    
+
     >>> p.index_pool_capacity
     100
-    
+
     >>> p.index_pool_capacity = 1500
-    >>> p.index_pool_capacity = -4321
+    >>> p.index_pool_capacity = -4321  #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     ...
     RTreeError: index_pool_capacity must be > 0
 
     >>> p.point_pool_capacity
     500
-    
+
     >>> p.point_pool_capacity = 1500
-    >>> p.point_pool_capacity = -4321
+    >>> p.point_pool_capacity = -4321  #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     ...
     RTreeError: point_pool_capacity must be > 0
 
     >>> p.region_pool_capacity
     1000
-    
+
     >>> p.region_pool_capacity = 1500
     >>> p.region_pool_capacity
     1500
-    >>> p.region_pool_capacity = -4321
+    >>> p.region_pool_capacity = -4321  #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     ...
     RTreeError: region_pool_capacity must be > 0
 
     >>> p.buffering_capacity
     10
-    
+
     >>> p.buffering_capacity = 100
-    >>> p.buffering_capacity = -4321
+    >>> p.buffering_capacity = -4321  #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     ...
-    RTreeError: buffering_capacity must be > 0    
+    RTreeError: buffering_capacity must be > 0
 
     >>> p.tight_mbr
     True
-    
+
     >>> p.tight_mbr = 100
     >>> p.tight_mbr
     True
-    
+
     >>> p.tight_mbr = False
     >>> p.tight_mbr
     False
 
     >>> p.overwrite
     True
-    
+
     >>> p.overwrite = 100
     >>> p.overwrite
     True
-    
+
     >>> p.overwrite = False
     >>> p.overwrite
     False
 
     >>> p.near_minimum_overlap_factor
     32
-    
+
     >>> p.near_minimum_overlap_factor = 100
-    >>> p.near_minimum_overlap_factor = -4321
+    >>> p.near_minimum_overlap_factor = -4321  #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     ...
-    RTreeError: near_minimum_overlap_factor must be > 0  
+    RTreeError: near_minimum_overlap_factor must be > 0
 
     >>> p.writethrough
     False
-    
+
     >>> p.writethrough = 100
     >>> p.writethrough
     True
-    
+
     >>> p.writethrough = False
     >>> p.writethrough
-    False    
+    False
 
     >>> '%.2f' % p.fill_factor
     '0.70'
@@ -224,31 +197,31 @@ Test property setting
 
     >>> p.tpr_horizon
     20.0
-    
+
     >>> '%.2f' % p.reinsert_factor
     '0.30'
 
     >>> p.filename
     ''
-    
+
     >>> p.filename = 'testing123testing'
     >>> p.filename
     'testing123testing'
-    
+
     >>> p.dat_extension
     'dat'
 
-    >>> p.dat_extension = 'data'
+    >>> p.dat_extension = r'data'
     >>> p.dat_extension
     'data'
-    
+
     >>> p.idx_extension
     'idx'
     >>> p.idx_extension = 'index'
     >>> p.idx_extension
     'index'
-    
-    >>> p.index_id
+
+    >>> p.index_id  #doctest: +IGNORE_EXCEPTION_DETAIL
     Traceback (most recent call last):
     ...
     RTreeError: Error in "IndexProperty_GetIndexID": Property IndexIdentifier was empty

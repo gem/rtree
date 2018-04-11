@@ -11,8 +11,9 @@ class RTreeError(Exception):
 def check_return(result, func, cargs):
     "Error checking for Error calls"
     if result != 0:
+        s = rt.Error_GetLastErrorMsg().decode()
         msg = 'LASError in "%s": %s' % \
-            (func.__name__, rt.Error_GetLastErrorMsg())
+            (func.__name__, s)
         rt.Error_Reset()
         raise RTreeError(msg)
     return True
@@ -21,7 +22,8 @@ def check_return(result, func, cargs):
 def check_void(result, func, cargs):
     "Error checking for void* returns"
     if not bool(result):
-        msg = 'Error in "%s": %s' % (func.__name__, rt.Error_GetLastErrorMsg())
+        s = rt.Error_GetLastErrorMsg().decode()
+        msg = 'Error in "%s": %s' % (func.__name__, s)
         rt.Error_Reset()
         raise RTreeError(msg)
     return result
@@ -30,7 +32,8 @@ def check_void(result, func, cargs):
 def check_void_done(result, func, cargs):
     "Error checking for void* returns that might be empty with no error"
     if rt.Error_GetErrorCount():
-        msg = 'Error in "%s": %s' % (func.__name__, rt.Error_GetLastErrorMsg())
+        s = rt.Error_GetLastErrorMsg().decode()
+        msg = 'Error in "%s": %s' % (func.__name__, s)
         rt.Error_Reset()
         raise RTreeError(msg)
     return result
@@ -40,7 +43,8 @@ def check_value(result, func, cargs):
     "Error checking proper value returns"
     count = rt.Error_GetErrorCount()
     if count != 0:
-        msg = 'Error in "%s": %s' % (func.__name__, rt.Error_GetLastErrorMsg())
+        s = rt.Error_GetLastErrorMsg().decode()
+        msg = 'Error in "%s": %s' % (func.__name__, s)
         rt.Error_Reset()
         raise RTreeError(msg)
     return result
@@ -50,7 +54,8 @@ def check_value_free(result, func, cargs):
     "Error checking proper value returns"
     count = rt.Error_GetErrorCount()
     if count != 0:
-        msg = 'Error in "%s": %s' % (func.__name__, rt.Error_GetLastErrorMsg())
+        s = rt.Error_GetLastErrorMsg().decode()
+        msg = 'Error in "%s": %s' % (func.__name__, s)
         rt.Error_Reset()
         raise RTreeError(msg)
     return result
@@ -111,15 +116,15 @@ if os.name == 'nt':
         raise OSError("could not find or load spatialindex_c.dll")
 
 elif os.name == 'posix':
-#    platform = os.uname()[0]
-#    if 'SPATIALINDEX_C_LIBRARY' in os.environ:
-#        lib_name = os.environ['SPATIALINDEX_C_LIBRARY']
-#    else:
-#        lib_name = find_library('spatialindex_c')
-#
-#    if lib_name is None:
-#        raise OSError("Could not find libspatialindex_c library file")
-
+#     if 'SPATIALINDEX_C_LIBRARY' in os.environ:
+#         lib_name = os.environ['SPATIALINDEX_C_LIBRARY']
+#     else:
+#         lib_name = find_library('spatialindex_c')
+# 
+#     if lib_name is None:
+#         raise OSError("Could not find libspatialindex_c library file")
+# 
+#     rt = ctypes.CDLL(lib_name)
     rt = ctypes.CDLL('./_wrapper_lib.so')
 else:
     raise RTreeError('Unsupported OS "%s"' % os.name)
@@ -149,7 +154,7 @@ NEXTFUNC = ctypes.CFUNCTYPE(ctypes.c_int,
                             ctypes.POINTER(ctypes.POINTER(ctypes.c_double)),
                             ctypes.POINTER(ctypes.c_uint32),
                             ctypes.POINTER(ctypes.POINTER(ctypes.c_ubyte)),
-                            ctypes.POINTER(ctypes.c_size_t))
+                            ctypes.POINTER(ctypes.c_uint32))
 
 rt.Index_CreateWithStream.argtypes = [ctypes.c_void_p, NEXTFUNC]
 rt.Index_CreateWithStream.restype = ctypes.c_void_p

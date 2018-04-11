@@ -2,7 +2,7 @@ import os
 import platform
 import shutil
 import subprocess
-import urllib
+import urllib.request
 import tarfile
 
 from distutils.util import get_platform
@@ -61,7 +61,7 @@ def build_spatialindex(libname):
         print("Downloading latest spatialindex master")
         theurl = ('https://github.com/libspatialindex/libspatialindex'
                   + '/archive/' + version + '.tar.gz')
-        name, hdrs = urllib.urlretrieve(theurl, archive)
+        name, hdrs = urllib.request.urlretrieve(theurl, archive)
     else:
         print("Archive '{}' already downloaded".format(archive))
 

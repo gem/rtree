@@ -14,7 +14,7 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 
 def get_libname():
-    libname = ["libspatialindex.so", "libspatialindex_c.so"]
+    libname = ["libspatialindex.so.4", "libspatialindex_c.so.4"]
     if platform.system() == "Darwin":
         libname = ["libspatialindex.dylib", "libspatialindex_c.dylib"]
     elif platform.system() == "Windows":
@@ -22,9 +22,9 @@ def get_libname():
     return libname
 
 
-def untar(archive, destdir):
+def untar(archive):
     tar = tarfile.open(archive)
-    tar.extractall(destdir)
+    tar.extractall()
     tar.close()
 
 
@@ -55,7 +55,7 @@ def get_readme():
 def build_spatialindex(libname):
     version = '1.8.5'
     archive = 'spatialindex-' + version + '.tar.gz'
-    destdir = 'spatialindex-' + version
+    destdir = 'libspatialindex-' + version
 
     if not os.path.exists(archive):
         print("Downloading latest spatialindex master")
@@ -67,35 +67,17 @@ def build_spatialindex(libname):
 
     if not os.path.exists(destdir):
         print("Unzipping spatialindex master archive")
-        untar(archive, destdir)
+        untar(archive)
     else:
         print("Archive '{}' already unzipped to {}".format(archive, destdir))
 
-    root = find_file('autogen.sh')
-    if root is None:
-        raise RuntimeError("Unable to find autogen.sh")
-
-    if find_file('config.status') is None:
-        print("configuring spatialindex in directory {}".format(root))
-        # force universal/fat build in OSX via CFLAGS env var
-        if platform.system() == "Darwin":
-            os.environ['CFLAGS'] = "-arch x86_64 -arch i386"
-        retcode = subprocess.Popen([
-            './autogen.sh',
-            ], cwd=root).wait()
-        # fix a bug on CentOS 5 (used to make manylinux1 wheels)
-        mfour = os.path.join(root, 'm4')
-        if not os.path.isdir(mfour):
-            os.makedirs(mfour)
-        retcode = subprocess.Popen([
-            './configure', '--disable-static',
-            ], cwd=root).wait()
-        if 0 != retcode:
-            raise RuntimeError("configure failed")
-    else:
-        print("spatialindex already configured in directory {}".format(root))
-
+    root = os.path.join(os.path.dirname(os.path.abspath(__file__)), destdir)
     print("making spatialindex")
+    if platform.system() == "Darwin":
+        os.environ['CFLAGS'] = "-arch x86_64 -arch i386"
+    retcode = subprocess.Popen([
+        'cmake', '.',
+        ], cwd=root).wait()
     retcode = subprocess.Popen([
         'make',
         '-j',
@@ -104,7 +86,7 @@ def build_spatialindex(libname):
     if 0 != retcode:
         raise RuntimeError("make failed")
 
-    src = os.path.join(root, '.libs')
+    src = os.path.join(root, 'bin')
     dst = os.path.join('rtree', '.libs')
     os.mkdir(dst)
     print("copying {} to {}".format(src, dst))

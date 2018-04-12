@@ -126,8 +126,7 @@ elif os.name == 'posix':
 
     # rt = ctypes.CDLL(lib_name)
     libs = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.libs')
-    ctypes.cdll.LoadLibrary(os.path.join(libs, 'libspatialindex.so'))
-    rt = ctypes.CDLL(os.path.join(libs, 'libspatialindex_c.so'))
+    rt = ctypes.CDLL(os.path.join(libs, 'libspatialindex_c.so.4'))
 else:
     raise RTreeError('Unsupported OS "%s"' % os.name)
 

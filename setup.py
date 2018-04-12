@@ -68,6 +68,7 @@ def build_spatialindex(libname):
         untar(archive)
 
     root = os.path.join(os.path.dirname(os.path.abspath(__file__)), destdir)
+    shutil.copy('CMakeLists.txt', root)
     print("making spatialindex")
     if platform.system() == "Darwin":
         os.environ['CFLAGS'] = "-arch x86_64 -arch i386"

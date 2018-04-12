@@ -22,6 +22,8 @@ if (CMAKE_MAJOR_VERSION GREATER 2)
     cmake_policy(SET CMP0042 OLD) # osx rpath
 endif()
 
+SET(CMAKE_BUILD_TYPE Release)
+
 if(APPLE)
     SET(CMAKE_MACOSX_RPATH 1)
     SET(CMAKE_SKIP_BUILD_RPATH FALSE)
@@ -112,6 +114,8 @@ endif()
 #------------------------------------------------------------------------------
 # General build settings
 #------------------------------------------------------------------------------
+
+SET(CMAKE_BUILD_TYPE, MinSizeRel)
 
 # note we default to debug mode
 if(NOT MSVC_IDE)

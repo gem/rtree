@@ -171,6 +171,5 @@ if __name__ == "__main__":
          'Topic :: Database',
          ],
        ext_modules=[Extension('rtree._wrapper_lib',
-                              sources=['wrapperlib/wrapperlib.c'],
-                              libraries=['spatialindex', 'spatialindex_c'])]
+                              sources=['wrapperlib/wrapperlib.c'])]
     )

@@ -115,16 +115,10 @@ if os.name == 'nt':
     if not rt:
         raise OSError("could not find or load spatialindex_c.dll")
 
+elif os.name == 'darwin':
+    libs = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.libs')
+    rt = ctypes.CDLL(os.path.join(libs, 'libspatialindex.4.dylib'))
 elif os.name == 'posix':
-    # if 'SPATIALINDEX_C_LIBRARY' in os.environ:
-    #     lib_name = os.environ['SPATIALINDEX_C_LIBRARY']
-    # else:
-    #     lib_name = find_library('spatialindex_c')
-
-    # if lib_name is None:
-    #     raise OSError("Could not find libspatialindex_c library file")
-
-    # rt = ctypes.CDLL(lib_name)
     libs = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.libs')
     rt = ctypes.CDLL(os.path.join(libs, 'libspatialindex_c.so.4'))
 else:

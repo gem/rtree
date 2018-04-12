@@ -16,7 +16,7 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 def get_libname():
     libname = ["libspatialindex.so.4", "libspatialindex_c.so.4"]
     if platform.system() == "Darwin":
-        libname = ["libspatialindex.dylib", "libspatialindex_c.dylib"]
+        libname = ["libspatialindex.4.dylib", "libspatialindex_c.4.dylib"]
     elif platform.system() == "Windows":
         libname = ["libspatialindex.dll", "libspatialindex_c.dll"]
     return libname

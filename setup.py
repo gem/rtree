@@ -10,9 +10,6 @@ from setuptools import setup, Extension
 from wheel.bdist_wheel import bdist_wheel as bdist_wheel_
 
 
-HERE = os.path.abspath(os.path.dirname(__file__))
-
-
 def get_libname():
     libname = ["libspatialindex.so.4", "libspatialindex_c.so.4"]
     if platform.system() == "Darwin":
@@ -26,14 +23,6 @@ def untar(archive):
     tar = tarfile.open(archive)
     tar.extractall()
     tar.close()
-
-
-def find_file(filename, start="."):
-    for root, dirs, files in os.walk(start, topdown=False):
-        for name in files:
-            if name == filename:
-                return root
-    return None
 
 
 # attempt to run parallel make with at most 8 workers
@@ -152,6 +141,6 @@ if __name__ == "__main__":
          'Topic :: Scientific/Engineering :: GIS',
          'Topic :: Database',
          ],
-       ext_modules=[Extension('rtree._wrapper_lib',
-                              sources=['wrapperlib/wrapperlib.c'])]
+       ext_modules=[Extension('rtree._mock_ext',
+                              sources=['ext/mock.c'])]
     )

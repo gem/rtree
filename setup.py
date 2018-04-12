@@ -57,19 +57,15 @@ def build_spatialindex(libname):
     archive = 'spatialindex-' + version + '.tar.gz'
     destdir = 'libspatialindex-' + version
 
-    if not os.path.exists(archive):
-        print("Downloading latest spatialindex master")
-        theurl = ('https://github.com/libspatialindex/libspatialindex'
-                  + '/archive/' + version + '.tar.gz')
-        name, hdrs = urllib.request.urlretrieve(theurl, archive)
-    else:
-        print("Archive '{}' already downloaded".format(archive))
-
     if not os.path.exists(destdir):
+        if not os.path.exists(archive):
+            print("Downloading latest spatialindex master")
+            theurl = ('https://github.com/libspatialindex/libspatialindex'
+                      + '/archive/' + version + '.tar.gz')
+            name, hdrs = urllib.request.urlretrieve(theurl, archive)
+
         print("Unzipping spatialindex master archive")
         untar(archive)
-    else:
-        print("Archive '{}' already unzipped to {}".format(archive, destdir))
 
     root = os.path.join(os.path.dirname(os.path.abspath(__file__)), destdir)
     print("making spatialindex")

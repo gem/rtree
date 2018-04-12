@@ -1,4 +1,5 @@
 import os
+import glob
 import platform
 import shutil
 import subprocess
@@ -14,11 +15,11 @@ HERE = os.path.abspath(os.path.dirname(__file__))
 
 
 def get_libname():
-    libname = "libspatialindex.so"
+    libname = ["libspatialindex.so", "libspatialindex_c.so"]
     if platform.system() == "Darwin":
-        libname = "libspatialindex.dylib"
+        libname = ["libspatialindex.dylib", "libspatialindex_c.dylib"]
     elif platform.system() == "Windows":
-        libname = "spatialindex.dll"
+        libname = ["libspatialindex.dll", "libspatialindex_c.dll"]
     return libname
 
 
@@ -105,9 +106,11 @@ def build_spatialindex(libname):
         raise RuntimeError("make failed")
 
     src = os.path.join(root, '.libs')
-    dst = 'rtree/.libs'
+    dst = os.path.join('rtree', '.libs')
+    os.mkdir(dst)
     print("copying {} to {}".format(src, dst))
-    shutil.copytree(src, dst)
+    for f in libname:
+        shutil.copy(os.path.join(src, f), dst)
 
 
 class bdist_wheel(bdist_wheel_):

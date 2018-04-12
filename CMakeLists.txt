@@ -22,7 +22,7 @@ if (CMAKE_MAJOR_VERSION GREATER 2)
     cmake_policy(SET CMP0042 OLD) # osx rpath
 endif()
 
-SET(CMAKE_BUILD_TYPE Release)
+SET(CMAKE_BUILD_TYPE MinSizeRel)
 
 if(APPLE)
     SET(CMAKE_MACOSX_RPATH 1)

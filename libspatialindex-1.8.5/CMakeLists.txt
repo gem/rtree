@@ -24,7 +24,11 @@ endif()
 
 SET(CMAKE_SKIP_BUILD_RPATH  TRUE)
 SET(CMAKE_BUILD_WITH_INSTALL_RPATH TRUE)
-SET(CMAKE_INSTALL_RPATH "$ORIGIN")
+if(APPLE)
+    SET(CMAKE_INSTALL_RPATH "@loader_path")
+else()
+    SET(CMAKE_INSTALL_RPATH "$ORIGIN")
+endif()
 
 #------------------------------------------------------------------------------
 # libspatialindex general settings

@@ -1,5 +1,4 @@
 import os
-import glob
 import platform
 import shutil
 import subprocess
@@ -89,7 +88,7 @@ def build_spatialindex(libname):
         if not os.path.isdir(mfour):
             os.makedirs(mfour)
         retcode = subprocess.Popen([
-            './configure',
+            './configure', '--disable-static',
             ], cwd=root).wait()
         if 0 != retcode:
             raise RuntimeError("configure failed")
@@ -119,15 +118,16 @@ class bdist_wheel(bdist_wheel_):
         if not os.path.exists('rtree/.libs'):
             build_spatialindex(libname)
         if not os.path.exists('rtree/.libs'):
-            raise RuntimeError("Unable to find shared library {lib}.".format(lib=libname))
+            raise RuntimeError("Unable to find shared library {lib}."
+                               .format(lib=libname))
         bdist_wheel_.run(self)
 
     def finalize_options(self):
         bdist_wheel_.finalize_options(self)
-        self.universal = True
-        self.root_is_pure = False
         self.plat_name_supplied = True
         self.plat_name = get_platform()
+        self.universal = False
+        self.root_is_pure = False
 
 if __name__ == "__main__":
     if os.name == 'nt':
@@ -155,11 +155,11 @@ if __name__ == "__main__":
        long_description=get_readme(),
        packages=['rtree'],
        include_package_data=True,
-       package_data={"rtree": ['.libs/*.so*']},
+       package_data={"rtree": ['.libs/*']},
        cmdclass={'bdist_wheel': bdist_wheel},
        install_requires=['setuptools'],
        test_suite='tests.test_suite',
-       # data_files=data_files,
+       data_files=data_files,
        zip_safe=False,
        classifiers=[
          'Development Status :: 5 - Production/Stable',

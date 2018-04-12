@@ -118,7 +118,7 @@ if os.name == 'nt':
 
 elif sys.platform == 'darwin':
     libs = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.libs')
-    rt = ctypes.CDLL(os.path.join(libs, 'libspatialindex.4.dylib'))
+    rt = ctypes.CDLL(os.path.join(libs, 'libspatialindex_c.4.dylib'))
 elif sys.platform == 'linux':
     libs = os.path.join(os.path.dirname(os.path.abspath(__file__)), '.libs')
     rt = ctypes.CDLL(os.path.join(libs, 'libspatialindex_c.so.4'))

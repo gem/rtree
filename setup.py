@@ -4,6 +4,7 @@ import shutil
 import subprocess
 import urllib.request
 import tarfile
+import multiprocessing
 
 from distutils.util import get_platform
 from setuptools import setup, Extension
@@ -27,11 +28,7 @@ def untar(archive):
 
 # attempt to run parallel make with at most 8 workers
 def cpu_count():
-    try:
-        import multiprocessing
-        return min(8, multiprocessing.cpu_count())
-    except:
-        return 1
+    return min(8, multiprocessing.cpu_count())
 
 
 def get_readme():

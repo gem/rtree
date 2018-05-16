@@ -71,6 +71,8 @@ def build_spatialindex(libname):
 
     src = os.path.join(root, 'bin')
     dst = os.path.join('rtree', '.libs')
+    if os.path.isdir(dst):
+        shutil.rmtree(dst)
     os.mkdir(dst)
     print("copying {} to {}".format(src, dst))
     for f in libname:
